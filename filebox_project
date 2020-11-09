@@ -1,0 +1,60 @@
+
+	Features:
+		
+		> Upload File. (Simple upload button)
+		    -- Every user is limited to 40 files.
+		    -- No file can be larger than 5 megabytes.
+
+		> View files.
+			-- Use list with each item having: Name, size(in megabytes), upload date (text format), download link, delete button.
+	
+		> Delete file.
+			-- Once delete icon is clicked. Launch a modal that confirms deletion. 
+
+		> Activity Log.
+			--> log: file upload, account creation, account signout, file download 
+
+    User State Management (Github OAuth 2)
+	
+		> Use a Spring Interceptor/Filter/(Pointcut) etc. to show login page to any user whose request does not contain a cookie
+		  called "filebox-session" or whose cookie returns a token with has expired when checked.
+
+	    > Once the user completes the login flow... use API token to collect their data which would include Email. Check
+	     the DynamoDB collection for any document that matches that email. If non, create and save one.
+
+		> Make cookies last for 30 days. unless user clicks logout out, then use JavaScript to delete the cookie and reload the page.
+
+		> The cookie used for login cannot be email alone. It should be a random string. Otherwise it's easy to bypass login functionality
+			by setting the email of a known user as cookie.
+
+		> The filebox-session token should be saved in an in-memory cache with: email, time it was issued.
+
+		
+    Tech Stack:
+
+		> AWS: DynamoDB, S3, Elastic Beanstalk.
+		> Java 11
+		> Ehcache for session token storage.
+		> Spring Boot & Thymeleaf
+		> Bulma CSS
+		
+
+	Todo: Explain why each tech item is used. E.g DynamoDB was preferred since the data fits the one-to-many relationship model and it's all
+			needed at once.
+
+	Todo: Readme should explain AWS setup too
+
+	Todo: Include architecture diagram(for file upload)
+
+
+
+
+
+
+
+
+
+
+
+
+
