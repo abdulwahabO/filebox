@@ -2,17 +2,13 @@
 	Features:
 		
 		> Upload File. (Simple upload button)
-		    -- Every user is limited to 40 files.
 		    -- No file can be larger than 5 megabytes.
 
 		> View files.
 			-- Use list with each item having: Name, size(in megabytes), upload date (text format), download link, delete button.
 	
 		> Delete file.
-			-- Once delete icon is clicked. Launch a modal that confirms deletion. 
-
-		> Activity Log.
-			--> log: file upload, account creation, account signout, file download 
+			-- Once delete icon is clicked. Launch a modal that confirms deletion.
 
     User State Management (Github OAuth 2)
 	
