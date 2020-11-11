@@ -2,9 +2,10 @@ package io.github.abdulwahabo.filebox.web;
 
 import io.github.abdulwahabo.filebox.exceptions.FileUploadException;
 import io.github.abdulwahabo.filebox.model.User;
-import io.github.abdulwahabo.filebox.services.CacheHelper;
+import io.github.abdulwahabo.filebox.util.CacheHelper;
 import io.github.abdulwahabo.filebox.services.UserService;
 
+import io.github.abdulwahabo.filebox.util.Constants;
 import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -24,8 +25,6 @@ public class UserController {
     private UserService userService;
     private CacheHelper cacheHelper;
 
-    private final String COOKIE_NAME = "filebox-session";
-    private final String COOKIE_CACHE = "cookie_cache";
 
     @Autowired
     public UserController(UserService userService, CacheHelper cacheHelper) {
@@ -68,9 +67,9 @@ public class UserController {
     private Optional<String> checkForUser(Cookie[] cookies) {
         for (int i = 0; i < cookies.length - 1; i++) {
             Cookie cookie = cookies[i];
-            if (cookie.getName().equalsIgnoreCase(COOKIE_NAME)) {
+            if (cookie.getName().equalsIgnoreCase(Constants.COOKIE_NAME)) {
                 String token = cookie.getValue();
-                Optional<Object> objectOptional = cacheHelper.get(COOKIE_CACHE, token);
+                Optional<Object> objectOptional = cacheHelper.get(Constants.COOKIE_CACHE, token);
                 if (objectOptional.isPresent()) {
                     String email = (String) objectOptional.get();
                     return Optional.of(email);

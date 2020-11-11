@@ -1,4 +1,4 @@
-package io.github.abdulwahabo.filebox.services;
+package io.github.abdulwahabo.filebox.util;
 
 import java.util.Optional;
 
