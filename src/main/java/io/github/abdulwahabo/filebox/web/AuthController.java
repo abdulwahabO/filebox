@@ -55,7 +55,7 @@ public class AuthController {
         // TODO: this cookie might not yet be in browser during redirect to home.
         // TODO: alternative: return a login success page first, so cookies get to browser ???
 
-        // TODO: to handle logout, write another cookie with age=0;
+        // TODO: to handle logout, write another cookie with age=0; Any need to handle logout?
 
         String token = randomToken();
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, token);

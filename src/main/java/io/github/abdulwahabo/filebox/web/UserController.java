@@ -11,6 +11,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,6 +65,12 @@ public class UserController {
         }
     }
 
+    public Resource download() {
+
+
+        // return file
+    }
+
     private Optional<String> checkForUser(Cookie[] cookies) {
         for (int i = 0; i < cookies.length - 1; i++) {
             Cookie cookie = cookies[i];
@@ -80,4 +87,6 @@ public class UserController {
         }
         return Optional.empty();
     }
+
+    // TODO: write a global exception handler, return an error page.. log exception. ??
 }

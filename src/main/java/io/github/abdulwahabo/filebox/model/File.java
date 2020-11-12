@@ -1,8 +1,6 @@
 package io.github.abdulwahabo.filebox.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 
 public class File {
 
@@ -10,7 +8,7 @@ public class File {
     private LocalDateTime uploadDate;
     private String uploadDateString;
     private double size; // in kilobytes
-    private String storageURL;
+    private String storageID;
 
     public LocalDateTime getUploadDate() {
         return uploadDate;
@@ -20,8 +18,8 @@ public class File {
         this.uploadDate = uploadDate;
     }
 
-    public String getStorageURL() {
-        return storageURL;
+    public String getStorageID() {
+        return storageID;
     }
 
     public String getUploadDateString() {
@@ -32,8 +30,8 @@ public class File {
         this.uploadDateString = uploadDateString;
     }
 
-    public void setStorageURL(String storageURL) {
-        this.storageURL = storageURL;
+    public void setStorageID(String storageID) {
+        this.storageID = storageID;
     }
 
     public double getSize() {

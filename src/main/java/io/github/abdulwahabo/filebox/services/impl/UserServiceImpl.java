@@ -3,6 +3,7 @@ package io.github.abdulwahabo.filebox.services.impl;
 import io.github.abdulwahabo.filebox.exceptions.FileUploadException;
 import io.github.abdulwahabo.filebox.model.File;
 import io.github.abdulwahabo.filebox.model.User;
+import io.github.abdulwahabo.filebox.services.DynamoDBClient;
 import io.github.abdulwahabo.filebox.services.FileStorageService;
 import io.github.abdulwahabo.filebox.services.UserService;
 
@@ -19,11 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserServiceImpl implements UserService {
 
     private FileStorageService fileStorageService;
-    // todo: AWS SDK for DynamoDB dependency here
+    private DynamoDBClient dynamoDBClient;
 
     @Autowired
-    public UserServiceImpl(FileStorageService fileStorageService) {
+    public UserServiceImpl(FileStorageService fileStorageService, DynamoDBClient dynamoDBClient) {
         this.fileStorageService = fileStorageService;
+        this.dynamoDBClient = dynamoDBClient;
     }
 
     @Override
@@ -37,6 +39,7 @@ public class UserServiceImpl implements UserService {
     public User save(User user) {
 
         /// Save user to DynamoDB.
+        return null;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class UserServiceImpl implements UserService {
 
         try {
             String id = fileStorageService.upload(multipartFile.getBytes());
-            file.setStorageURL(""); // todo
+            file.setStorageID(""); // todo
             files.add(file);
             user.setFiles(files);
 
