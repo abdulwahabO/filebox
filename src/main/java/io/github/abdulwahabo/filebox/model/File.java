@@ -1,7 +1,9 @@
 package io.github.abdulwahabo.filebox.model;
 
 import java.time.LocalDateTime;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
+@DynamoDbBean
 public class File {
 
     private String name;

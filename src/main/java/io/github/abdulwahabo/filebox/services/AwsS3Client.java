@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.SdkHttpResponse;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectResponse;
@@ -28,8 +29,17 @@ public class AwsS3Client {
     @Value("${aws.s3.bucket}")
     private String bucket;
 
+    @Value("${aws.dynamo.region}")
+    private String region;
+
     private S3Client s3Client;
 
+    /**
+     *
+     * @param key
+     * @param bytes
+     * @return
+     */
     public boolean uploadFile(String key, byte[] bytes) {
 
         PutObjectRequest request = PutObjectRequest.builder()
@@ -49,6 +59,11 @@ public class AwsS3Client {
         }
     }
 
+    /**
+     *
+     * @param key
+     * @return
+     */
     public Optional<byte[]> downloadFile(String key) {
         GetObjectRequest request = GetObjectRequest.builder()
                                                    .bucket(bucket)
@@ -68,6 +83,11 @@ public class AwsS3Client {
         }
     }
 
+    /**
+     *
+     * @param key
+     * @return
+     */
     public boolean deleteFile(String key) {
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                                                                      .bucket(bucket)
@@ -88,6 +108,9 @@ public class AwsS3Client {
 
     @PostConstruct
     private void initClient() {
-        s3Client = S3Client.builder().build();
+        Region reg = Region.of(region);
+        s3Client = S3Client.builder()
+                           .region(reg)
+                           .build();
     }
 }

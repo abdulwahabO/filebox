@@ -16,6 +16,7 @@ public class User {
     private String email;
     private List<File> files;
 
+    @DynamoDbFlatten
     public List<File> getFiles() {
         return new ArrayList<>(files);
     }
