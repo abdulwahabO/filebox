@@ -3,7 +3,7 @@ package io.github.abdulwahabo.filebox.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.abdulwahabo.filebox.exceptions.AuthenticationException;
-import io.github.abdulwahabo.filebox.exceptions.GithubUserNotFoundException;
+import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
 import io.github.abdulwahabo.filebox.services.dto.GithubAccessTokenDto;
 import io.github.abdulwahabo.filebox.services.dto.GithubUserDto;
 import io.github.abdulwahabo.filebox.util.CacheHelper;
@@ -78,18 +78,18 @@ public class GithubAuthService {
      *
      * @param accessToken
      * @return
-     * @throws GithubUserNotFoundException
+     * @throws UserNotFoundException
      */
-    public GithubUserDto getGithubUser(String accessToken) throws GithubUserNotFoundException {
+    public GithubUserDto getGithubUser(String accessToken) throws UserNotFoundException {
         try {
             HttpResponse<String> response = githubClient.getUser(accessToken, GITHUB_USER_API_URL);
             if (!(response.statusCode() >= 200 && response.statusCode() <= 299)) {
-                throw new GithubUserNotFoundException("Failed to obtain Github access token");
+                throw new UserNotFoundException("Failed to obtain Github access token");
             }
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(response.body(), GithubUserDto.class);
         } catch (IOException | URISyntaxException | InterruptedException e) {
-            throw new GithubUserNotFoundException("Failed to obtain Github access token", e);
+            throw new UserNotFoundException("Failed to obtain Github access token", e);
         }
     }
 

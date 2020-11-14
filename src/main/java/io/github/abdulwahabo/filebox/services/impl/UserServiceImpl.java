@@ -1,6 +1,9 @@
 package io.github.abdulwahabo.filebox.services.impl;
 
+import io.github.abdulwahabo.filebox.exceptions.AwsClientException;
 import io.github.abdulwahabo.filebox.exceptions.FileUploadException;
+import io.github.abdulwahabo.filebox.exceptions.UserCreateException;
+import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
 import io.github.abdulwahabo.filebox.model.File;
 import io.github.abdulwahabo.filebox.model.User;
 import io.github.abdulwahabo.filebox.services.DynamoDBClient;
@@ -29,43 +32,45 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User get(String email) {
-
-        // todo: go to DynamoDB and fetch user...
-        return null;
-    }
-
-    @Override
-    public User save(User user) {
-
-        /// Save user to DynamoDB.
-        return null;
-    }
-
-    @Override
-    public User addFile(MultipartFile multipartFile, String email) throws FileUploadException  {
-
-        User user = get(email);
-        List<File> files = user.getFiles();
-        LocalDateTime time = LocalDateTime.now();
-
-        File file = new File();
-        file.setName(multipartFile.getOriginalFilename());
-        file.setSize((double) multipartFile.getSize() / 1000);
-        file.setUploadDate(time);
-        file.setUploadDateString(time.format(DateTimeFormatter.RFC_1123_DATE_TIME));
-
+    public User get(String email) throws UserNotFoundException {
         try {
-            String id = fileStorageService.upload(multipartFile.getBytes());
-            file.setStorageID(""); // todo
+            return dynamoDBClient.getUser(email);
+        } catch (AwsClientException e) {
+            throw new UserNotFoundException("No user found with given email:" + email, e);
+        }
+    }
+
+    @Override
+    public User save(User user) throws UserCreateException {
+        try {
+            dynamoDBClient.saveUser(user);
+            return user;
+        } catch (AwsClientException e) {
+            throw new UserCreateException("Failed to save user with email: " + user.getEmail(), e);
+        }
+    }
+
+    @Override
+    public User addFile(MultipartFile multipartFile, String email) throws FileUploadException {
+        try {
+            User user = get(email);
+            List<File> files = user.getFiles();
+            LocalDateTime time = LocalDateTime.now();
+
+            File file = new File();
+            file.setName(multipartFile.getOriginalFilename());
+            file.setSize((double) multipartFile.getSize() / 1000);
+            file.setUploadDate(time);
+            file.setUploadDateString(time.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+
+            String id = fileStorageService.upload(multipartFile.getBytes(), user.getEmail());
+            file.setStorageID(id);
             files.add(file);
             user.setFiles(files);
-
-            // TODO: save user to DynamoDB
+            save(user);
             return user;
-
-        } catch (IOException e) {
-            throw new FileUploadException("Failed to add file for user " + user.getEmail(), e);
+        } catch (IOException | UserCreateException | UserNotFoundException e) {
+            throw new FileUploadException("Failed to add file for a user", e);
         }
     }
 }

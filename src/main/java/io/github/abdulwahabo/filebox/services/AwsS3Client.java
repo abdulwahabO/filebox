@@ -1,5 +1,8 @@
 package io.github.abdulwahabo.filebox.services;
 
+import io.github.abdulwahabo.filebox.exceptions.FileDeleteException;
+import io.github.abdulwahabo.filebox.exceptions.FileDownloadException;
+import io.github.abdulwahabo.filebox.exceptions.FileUploadException;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 
@@ -20,6 +23,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Service
 public class AwsS3Client {
@@ -36,73 +40,76 @@ public class AwsS3Client {
 
     /**
      *
-     * @param key
-     * @param bytes
-     * @return
      */
-    public boolean uploadFile(String key, byte[] bytes) {
-
+    public boolean uploadFile(String key, byte[] bytes) throws FileUploadException {
         PutObjectRequest request = PutObjectRequest.builder()
                                                    .key(key)
                                                    .bucket(bucket)
                                                    .build();
 
-        PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(bytes));
-        SdkHttpResponse httpResponse = response.sdkHttpResponse();
+        try {
+            PutObjectResponse response = s3Client.putObject(request, RequestBody.fromBytes(bytes));
+            SdkHttpResponse httpResponse = response.sdkHttpResponse();
 
-        if (!httpResponse.isSuccessful()) {
-            logger.error("Failed to upload file with key: " + key + " [" + httpResponse.statusCode() + "]");
-            return false;
-        } else {
-            logger.info("Upload successful for file with key: " + key);
-            return true;
+            if (!httpResponse.isSuccessful()) {
+                logger.error("Failed to upload file with key: " + key + " [" + httpResponse.statusCode() + "]");
+                return false;
+            } else {
+                logger.info("Upload successful for file with key: " + key);
+                return true;
+            }
+        } catch (S3Exception e) {
+            throw new FileUploadException("File upload failed", e);
         }
     }
 
     /**
      *
-     * @param key
-     * @return
      */
-    public Optional<byte[]> downloadFile(String key) {
+    public Optional<byte[]> downloadFile(String key) throws FileDownloadException {
         GetObjectRequest request = GetObjectRequest.builder()
                                                    .bucket(bucket)
                                                    .key(key)
                                                    .build();
 
-        ResponseBytes<GetObjectResponse> responseBytes = s3Client.getObjectAsBytes(request);
+        try {
+            ResponseBytes<GetObjectResponse> responseBytes = s3Client.getObjectAsBytes(request);
+            SdkHttpResponse httpResponse = responseBytes.response().sdkHttpResponse();
 
-        SdkHttpResponse httpResponse = responseBytes.response().sdkHttpResponse();
-
-        if (httpResponse.isSuccessful()) {
-            logger.info("Downloaded file with key: " + key);
-            return Optional.of(responseBytes.asByteArray());
-        } else {
-            logger.error("Failed to download file with key: " + key + " [" + httpResponse.statusCode() + "]");
-            return Optional.empty();
+            if (httpResponse.isSuccessful()) {
+                logger.info("Downloaded file with key: " + key);
+                return Optional.of(responseBytes.asByteArray());
+            } else {
+                logger.error("Failed to download file with key: " + key + " [" + httpResponse.statusCode() + "]");
+                return Optional.empty();
+            }
+        } catch (S3Exception e) {
+            throw new FileDownloadException("Failed to download file", e);
         }
     }
 
     /**
      *
-     * @param key
-     * @return
      */
-    public boolean deleteFile(String key) {
+    public boolean deleteFile(String key) throws FileDeleteException {
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                                                                      .bucket(bucket)
                                                                      .key(key)
                                                                      .build();
 
-        DeleteObjectResponse response = s3Client.deleteObject(deleteObjectRequest);
-        SdkHttpResponse httpResponse = response.sdkHttpResponse();
+        try {
+            DeleteObjectResponse response = s3Client.deleteObject(deleteObjectRequest);
+            SdkHttpResponse httpResponse = response.sdkHttpResponse();
 
-        if (httpResponse.isSuccessful()) {
-            logger.info("Deleted file with key: " + key);
-            return true;
-        } else {
-            logger.error("Failed to delete file with key: " + key + " [" + httpResponse.statusCode() + "]");
-            return false;
+            if (httpResponse.isSuccessful()) {
+                logger.info("Deleted file with key: " + key);
+                return true;
+            } else {
+                logger.error("Failed to delete file with key: " + key + " [" + httpResponse.statusCode() + "]");
+                return false;
+            }
+        } catch (S3Exception e) {
+            throw new FileDeleteException("Failed to delete file with key: " + key, e);
         }
     }
 

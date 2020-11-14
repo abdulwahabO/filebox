@@ -1,7 +1,7 @@
 package io.github.abdulwahabo.filebox.web;
 
 import io.github.abdulwahabo.filebox.exceptions.AuthenticationException;
-import io.github.abdulwahabo.filebox.exceptions.GithubUserNotFoundException;
+import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
 import io.github.abdulwahabo.filebox.services.dto.GithubAccessTokenDto;
 import io.github.abdulwahabo.filebox.services.dto.GithubUserDto;
 import io.github.abdulwahabo.filebox.util.CacheHelper;
@@ -39,7 +39,7 @@ public class AuthController {
     public ModelAndView githubCallback(
             @RequestParam Map<String, String> params,
             ModelMap modelMap,
-            HttpServletResponse response) throws AuthenticationException, GithubUserNotFoundException {
+            HttpServletResponse response) throws AuthenticationException, UserNotFoundException {
 
         String state = params.get("state");
         String code = params.get("code");
