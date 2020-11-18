@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.css">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <title>FileBox</title>
+</head>
+
+<body>
+
+<div class="columns">
+  <div class="column">
+    <img src="../static/imgs/fb-logo.svg" th:src="@{imgs/fb-logo.svg}" class="float-left"/>
+  </div>
+
+  <div class="column">
+    <p th:text="${user.name}"></p>
+  </div>
+
+  <div class="column">
+    <a class="button is-danger is-rounded is-outlined float-right" th:href="@{/logout}">Sign Out</a>
+  </div>
+</div>
+
+<form  method="POST" enctype="multipart/form-data" th:action="@{/upload}">
+  <div class="columns is-centered">
+    <div class="column">
+      <div class="file">
+        <label class="file-label">
+          <input class="file-input" type="file" name="file">
+          <span class="file-cta">
+            <span class="file-icon">
+              <i class="fas fa-upload"></i>
+            </span>
+            <span class="file-label">
+              Select a file
+            </span>
+          </span>
+        </label>
+      </div>
+    </div>
+    <div class="column">
+      <input class="button is-primary" type="submit" value="Upload">
+    </div>
+  </div>
+</form>
+
+<div class="columns is-centered" th:if="${message}">
+  <div class="column is-12">
+    <h2 th:text="${message}"/>
+  </div>
+</div>
+
+<div class="columns is-centered" th:if="${user.files.size <= 0}">
+  <div class="column">
+    <h3 class="has-text-centered is-italic">You have not uploaded any files yet</h3>
+  </div>
+</div>
+
+<div class="columns is-centered" th:if="${user.files.size > 0}">
+  <div class="table column is-11">
+    <table>
+      <thead>
+          <th>File</th>
+          <th>Size</th>
+          <th>Upload Date</th>
+          <th></th> 
+          <th></th> 
+      </thead>
+      <tbody>
+          <tr th:each="file : ${user.files}">
+              <td th:text="${file.name}"></td>
+              <td th:text="${file.size} KB"></td>
+              <td th:text="${file.uploadDateString}"></td>
+              <td><a th:href="@{/download(storage_id=${file.storageID})}">download</a></td>
+              <td><a th:href="@{/delete(storage_id=${file.storageID})}">delete</a></td>
+          </tr>
+      </tbody>
+  </table>
+  </div>
+</div>
+
+<footer class="footer">
+    <div class="content has-text-centered">
+      <p>
+        &copy 2020 Adeshina A. Ogunmodede
+      </p>
+    </div>
+</footer>
+
+</body>
+
+</html>

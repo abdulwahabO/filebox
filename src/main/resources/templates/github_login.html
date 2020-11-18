@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.css">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <title>Login</title>
+</head>
+
+<body>
+    <div class="columns is-centered">
+        <div class="column is-6">
+            <img src="../static/imgs/fb-logo.svg" th:src="@{imgs/fb-logo.svg}"/>
+            <p>Sign in to upload files</p>
+            <a th:ref="@{/login}" class="button is-dark is-fullwidth is-large">Sign In With Github</a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+          <p>
+            &copy 2020 Adeshina A. Ogunmodede
+          </p>
+        </div>
+    </footer>
+</body>
+
+</html>
