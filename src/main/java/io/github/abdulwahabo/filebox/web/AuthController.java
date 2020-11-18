@@ -1,7 +1,10 @@
 package io.github.abdulwahabo.filebox.web;
 
 import io.github.abdulwahabo.filebox.exceptions.AuthenticationException;
+import io.github.abdulwahabo.filebox.exceptions.UserCreateException;
 import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
+import io.github.abdulwahabo.filebox.model.User;
+import io.github.abdulwahabo.filebox.services.UserService;
 import io.github.abdulwahabo.filebox.services.dto.GithubAccessTokenDto;
 import io.github.abdulwahabo.filebox.services.dto.GithubUserDto;
 import io.github.abdulwahabo.filebox.util.CacheHelper;
@@ -28,34 +31,43 @@ public class AuthController {
 
     private GithubAuthService githubAuthService;
     private CacheHelper cacheHelper;
+    private UserService userService;
 
     @Autowired
-    public AuthController(GithubAuthService githubAuthService, CacheHelper cacheHelper) {
+    public AuthController(GithubAuthService githubAuthService, CacheHelper cacheHelper, UserService userService) {
         this.githubAuthService = githubAuthService;
         this.cacheHelper = cacheHelper;
+        this.userService = userService;
+    }
+
+    @GetMapping("/login")
+    public String githubRedirect() {
+        return "redirect:" + githubAuthService.redirectUrl();
     }
 
     @GetMapping(Constants.OAUTH_CALLBACK_URL)
     public ModelAndView githubCallback(
             @RequestParam Map<String, String> params,
             ModelMap modelMap,
-            HttpServletResponse response) throws AuthenticationException, UserNotFoundException {
+            HttpServletResponse response) throws AuthenticationException, UserNotFoundException, UserCreateException {
 
         String state = params.get("state");
         String code = params.get("code");
         Optional<Object> optional = cacheHelper.get(Constants.OAUTH_STATE_CACHE, state);
 
         if (optional.isEmpty()) {
-            return new ModelAndView("redirect:/login", modelMap);
+            return new ModelAndView("github_login");
         }
 
         GithubAccessTokenDto accessToken = githubAuthService.accesstoken(code);
         GithubUserDto githubUserDto = githubAuthService.getGithubUser(accessToken.getToken());
+        User user = new User();
+        user.setEmail(githubUserDto.getEmail());
+        user.setName(githubUserDto.getName());
+        userService.save(user);
 
         // TODO: this cookie might not yet be in browser during redirect to home.
         // TODO: alternative: return a login success page first, so cookies get to browser ???
-
-        // TODO: to handle logout, write another cookie with age=0; Any need to handle logout?
 
         String token = randomToken();
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, token);

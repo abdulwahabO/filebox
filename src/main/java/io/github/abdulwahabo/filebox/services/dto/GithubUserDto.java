@@ -6,6 +6,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class GithubUserDto {
 
     private String email;
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getEmail() {
         return email;

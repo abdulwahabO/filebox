@@ -3,6 +3,7 @@ package io.github.abdulwahabo.filebox.web;
 import io.github.abdulwahabo.filebox.exceptions.FileDeleteException;
 import io.github.abdulwahabo.filebox.exceptions.FileDownloadException;
 import io.github.abdulwahabo.filebox.exceptions.FileUploadException;
+import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
 import io.github.abdulwahabo.filebox.model.File;
 import io.github.abdulwahabo.filebox.model.User;
 import io.github.abdulwahabo.filebox.services.FileStorageService;
@@ -14,6 +15,7 @@ import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -43,7 +45,7 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public ModelAndView home(HttpServletRequest request, ModelMap model) {
+    public ModelAndView home(HttpServletRequest request, ModelMap model) throws UserNotFoundException {
         Optional<String> emailOpt = checkForUser(request.getCookies());
         if (emailOpt.isPresent()) {
             User user = userService.get(emailOpt.get());
@@ -52,11 +54,11 @@ public class HomeController {
             return new ModelAndView("home", model);
         } else {
             model.addAttribute("message", "You need to login first");
-            return new ModelAndView("redirect:/login", model);
+            return new ModelAndView("github_login", model);
         }
     }
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload")
     public ModelAndView upload(
             HttpServletRequest request,
             @RequestParam("file") MultipartFile multipartFile,
@@ -70,7 +72,7 @@ public class HomeController {
             return new ModelAndView("redirect:/", model);
         } else {
             model.addAttribute("message", "You need to login first");
-            return new ModelAndView("redirect:/login", model);
+            return new ModelAndView("github_login", model);
         }
     }
 
@@ -78,7 +80,7 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<Resource> download(
             HttpServletRequest request,
-            @RequestParam("storage_id") String storageID) throws FileDownloadException {
+            @RequestParam("storage_id") String storageID) throws FileDownloadException, UserNotFoundException {
 
         Optional<String> emailOpt = checkForUser(request.getCookies());
         String email = emailOpt.orElseThrow(() -> new FileDownloadException("User is not authenticated"));
@@ -101,7 +103,8 @@ public class HomeController {
     @GetMapping("/delete")
     public ModelAndView delete(
             HttpServletRequest request,
-            @RequestParam("storage_id") String storageID, ModelMap model) throws FileDeleteException {
+            @RequestParam("storage_id") String storageID, ModelMap model) throws UserNotFoundException,
+            FileDeleteException {
 
         Optional<String> emailOpt = checkForUser(request.getCookies());
         String email = emailOpt.orElseThrow(() -> new FileDeleteException("User is not authenticated"));
@@ -125,6 +128,12 @@ public class HomeController {
         return new ModelAndView("home", model);
     }
 
+    @GetMapping("/logout")
+    public ModelAndView signout(HttpServletRequest request, HttpServletResponse response) {
+        removeCookie(request.getCookies(), response);
+        return new ModelAndView("github_login");
+    }
+
     private Optional<String> checkForUser(Cookie[] cookies) {
         for (int i = 0; i < cookies.length - 1; i++) {
             Cookie cookie = cookies[i];
@@ -140,6 +149,20 @@ public class HomeController {
             }
         }
         return Optional.empty();
+    }
+
+    private void removeCookie(Cookie[] cookies, HttpServletResponse response) {
+        for (int i = 0; i < cookies.length - 1; i++) {
+            Cookie cookie = cookies[i];
+            if (cookie.getName().equalsIgnoreCase(Constants.COOKIE_NAME)) {
+                String token = cookie.getValue();
+                cacheHelper.remove(Constants.COOKIE_CACHE, token);
+                Cookie expiredCookie = new Cookie(Constants.COOKIE_NAME, token);
+                cookie.setMaxAge(0);
+                response.addCookie(expiredCookie);
+                return;
+            }
+        }
     }
 
     // TODO: write a global exception handler, return an error page.. log exception. ??

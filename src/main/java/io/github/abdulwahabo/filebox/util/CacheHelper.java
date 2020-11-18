@@ -17,15 +17,37 @@ public class CacheHelper {
         this.cacheManager = cacheManager;
     }
 
+    /**
+     *
+     * @param cacheName
+     * @param key
+     * @param value
+     */
     public void put(String cacheName, String key, Object value) {
         Cache cache = cache(cacheName);
         cache.put(key, value);
     }
 
+    /**
+     *
+     * @param cacheName
+     * @param key
+     * @return
+     */
     public Optional<Object> get(String cacheName, String key) {
         Cache cache = cache(cacheName);
         Cache.ValueWrapper valueWrapper = cache.get(key);
         return valueWrapper != null ? Optional.ofNullable(valueWrapper.get()) : Optional.empty() ;
+    }
+
+    /**
+     *
+     * @param cacheName
+     * @param key
+     */
+    public void remove(String cacheName, String key) {
+        Cache cache = cache(cacheName);
+        cache.evictIfPresent(key);
     }
 
     private Cache cache(String name) {

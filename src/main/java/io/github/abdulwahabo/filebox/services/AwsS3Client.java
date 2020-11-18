@@ -28,6 +28,8 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 @Service
 public class AwsS3Client {
 
+    // Todo: Read AWS docs for how and where to keep Credentials.
+
     private Logger logger = LoggerFactory.getLogger(AwsS3Client.class);
 
     @Value("${aws.s3.bucket}")

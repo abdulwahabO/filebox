@@ -11,7 +11,16 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 public class User {
 
     private String email;
+    private String name;
     private List<File> files;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     @DynamoDbFlatten
     public List<File> getFiles() {
