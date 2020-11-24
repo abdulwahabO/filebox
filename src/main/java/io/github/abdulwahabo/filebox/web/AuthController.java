@@ -1,6 +1,7 @@
 package io.github.abdulwahabo.filebox.web;
 
 import io.github.abdulwahabo.filebox.exceptions.AuthenticationException;
+import io.github.abdulwahabo.filebox.exceptions.AwsClientException;
 import io.github.abdulwahabo.filebox.exceptions.UserCreateException;
 import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
 import io.github.abdulwahabo.filebox.model.User;
@@ -19,16 +20,21 @@ import java.util.Random;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.juli.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 public class AuthController {
 
+    private Logger logger = LoggerFactory.getLogger(AuthController.class);
     private GithubAuthService githubAuthService;
     private CacheHelper cacheHelper;
     private UserService userService;
@@ -49,26 +55,28 @@ public class AuthController {
     public ModelAndView githubCallback(
             @RequestParam Map<String, String> params,
             ModelMap modelMap,
-            HttpServletResponse response) throws AuthenticationException, UserNotFoundException, UserCreateException {
+            HttpServletResponse response) throws AwsClientException, AuthenticationException, UserCreateException {
 
         String state = params.get("state");
         String code = params.get("code");
         Optional<Object> optional = cacheHelper.get(Constants.OAUTH_STATE_CACHE, state);
 
         if (optional.isEmpty()) {
+            logger.warn("Could not find oauth2 state");
             return new ModelAndView("github_login");
         }
 
         GithubAccessTokenDto accessToken = githubAuthService.accesstoken(code);
         GithubUserDto githubUserDto = githubAuthService.getGithubUser(accessToken.getToken());
-        User user = new User();
-        user.setEmail(githubUserDto.getEmail());
-        user.setName(githubUserDto.getName());
-        userService.save(user);
+        boolean existingUser = userService.userExists(githubUserDto.getEmail());
 
-        // TODO: this cookie might not yet be in browser during redirect to home.
-        // TODO: alternative: return a login success page first, so cookies get to browser ???
-
+        if (!existingUser) {
+            User user = new User();
+            user.setEmail(githubUserDto.getEmail());
+            user.setName(githubUserDto.getName());
+            userService.save(user);
+        }
+        
         String token = randomToken();
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, token);
         cookie.setMaxAge(604800); // 7 days

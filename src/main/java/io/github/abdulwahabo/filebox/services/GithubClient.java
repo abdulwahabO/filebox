@@ -9,6 +9,9 @@ import java.net.http.HttpResponse;
 
 import org.springframework.stereotype.Service;
 
+/**
+ *
+ */
 @Service
 public class GithubClient {
 

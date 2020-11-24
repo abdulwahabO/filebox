@@ -10,15 +10,16 @@
 </head>
 
 <body>
+    <h4><span th:text="${message}"></span></h4>
     <div class="columns is-centered">
         <div class="column is-6">
             <img src="../static/imgs/fb-logo.svg" th:src="@{imgs/fb-logo.svg}"/>
-            <p>Sign in to upload files</p>
-            <a th:ref="@{/login}" class="button is-dark is-fullwidth is-large">Sign In With Github</a>
+            <br>
+            <a th:href="@{/login}" class="button is-dark is-fullwidth is-large">Sign In With Github</a>
         </div>
     </div>
 
-    <footer class="footer">
+    <footer class="footer has-background-white">
         <div class="content has-text-centered">
           <p>
             &copy 2020 Adeshina A. Ogunmodede

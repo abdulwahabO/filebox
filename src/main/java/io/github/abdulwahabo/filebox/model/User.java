@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
-import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbFlatten;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
+/**
+ *
+ */
 @DynamoDbBean
 public class User {
 
     private String email;
     private String name;
-    private List<File> files;
+    private List<File> files = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -22,7 +24,6 @@ public class User {
         this.name = name;
     }
 
-    @DynamoDbFlatten
     public List<File> getFiles() {
         return new ArrayList<>(files);
     }

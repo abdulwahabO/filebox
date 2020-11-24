@@ -1,22 +1,25 @@
 package io.github.abdulwahabo.filebox.model;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
+/**
+ *
+ */
 @DynamoDbBean
 public class File {
 
     private String name;
-    private LocalDateTime uploadDate;
+    private ZonedDateTime uploadDate;
     private String uploadDateString;
     private double size; // in kilobytes
     private String storageID;
 
-    public LocalDateTime getUploadDate() {
+    public ZonedDateTime getUploadDate() {
         return uploadDate;
     }
 
-    public void setUploadDate(LocalDateTime uploadDate) {
+    public void setUploadDate(ZonedDateTime uploadDate) {
         this.uploadDate = uploadDate;
     }
 
@@ -28,6 +31,10 @@ public class File {
         return uploadDateString;
     }
 
+    /**
+     *
+     * @param uploadDateString
+     */
     public void setUploadDateString(String uploadDateString) {
         this.uploadDateString = uploadDateString;
     }
@@ -36,6 +43,10 @@ public class File {
         this.storageID = storageID;
     }
 
+    /**
+     *
+     * @return
+     */
     public double getSize() {
         return size;
     }
@@ -44,6 +55,10 @@ public class File {
         this.size = size;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getName() {
         return name;
     }

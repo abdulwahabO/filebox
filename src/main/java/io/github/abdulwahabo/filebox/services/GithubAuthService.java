@@ -21,19 +21,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class GithubAuthService {
 
-    // TODO: These are package-private so that a test can change their values before they are passed down to the Client
-    final String GITHUB_AUTHORIZE_URL = "https://github.com/login/oauth/authorize?";
-    final String GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token?";
-    final String GITHUB_USER_API_URL = "https://api.github.com/user";
-
-    private CacheHelper cacheHelper;
-    private GithubClient githubClient;
-
-    @Autowired
-    public GithubAuthService(CacheHelper cacheHelper, GithubClient githubClient) {
-        this.cacheHelper = cacheHelper;
-        this.githubClient = githubClient;
-    }
+    private final String GITHUB_AUTHORIZE_URL = "https://github.com/login/oauth/authorize?";
+    private final String GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token?";
+    private final String GITHUB_USER_API_URL = "https://api.github.com/user";
 
     @Value("${app.host}")
     private String host;
@@ -44,11 +34,20 @@ public class GithubAuthService {
     @Value("${github.client.secret}")
     private String secret;
 
+    private CacheHelper cacheHelper;
+    private GithubClient githubClient;
+
+    @Autowired
+    public GithubAuthService(CacheHelper cacheHelper, GithubClient githubClient) {
+        this.cacheHelper = cacheHelper;
+        this.githubClient = githubClient;
+    }
+
     /**
      *
      */
     public GithubAccessTokenDto accesstoken(String code) throws AuthenticationException {
-        String params = String.format("client_id=%sclient_secret=%scode=%s", clientId, secret, code);
+        String params = String.format("client_id=%s&client_secret=%s&code=%s", clientId, secret, code);
         try {
             HttpResponse<String> response = githubClient.getAccessToken(GITHUB_TOKEN_URL.concat(params));
 
@@ -62,14 +61,13 @@ public class GithubAuthService {
         }
     }
 
-    // TODO: Implement CLoudWatch for App in Production.
-
     /**
      *
      */
     public String redirectUrl() {
+        host = startUrlWithoutSlash(host);
         String redirect = host.concat(Constants.OAUTH_CALLBACK_URL);
-        String format = "client_id=%sredirect_uri=%sstate=%sallow_signup=false";
+        String format = "client_id=%s&redirect_uri=%s&state=%s&allow_signup=false";
         String state = random();
         cacheHelper.put(Constants.OAUTH_STATE_CACHE, state, "valid_state");
         String params = String.format(format, clientId, redirect, state);
@@ -82,21 +80,28 @@ public class GithubAuthService {
      * @return
      * @throws UserNotFoundException
      */
-    public GithubUserDto getGithubUser(String accessToken) throws UserNotFoundException {
+    public GithubUserDto getGithubUser(String accessToken) throws AuthenticationException {
         try {
             HttpResponse<String> response = githubClient.getUser(accessToken, GITHUB_USER_API_URL);
             if (!(response.statusCode() >= 200 && response.statusCode() <= 299)) {
-                throw new UserNotFoundException("Failed to obtain Github access token");
+                throw new AuthenticationException("Failed to obtain Github access token");
             }
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(response.body(), GithubUserDto.class);
         } catch (IOException | URISyntaxException | InterruptedException e) {
-            throw new UserNotFoundException("Failed to obtain Github access token", e);
+            throw new AuthenticationException("Failed to obtain Github access token", e);
         }
     }
 
     private String random() {
         Random random = new Random();
         return String.valueOf(random.nextInt(54512));
+    }
+
+    private String startUrlWithoutSlash(String url) {
+        if (url.endsWith("/")) {
+            return url.substring(0, url.length() - 1);
+        }
+        return url;
     }
 }

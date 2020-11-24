@@ -3,6 +3,7 @@ package io.github.abdulwahabo.filebox.web;
 import io.github.abdulwahabo.filebox.exceptions.FileDeleteException;
 import io.github.abdulwahabo.filebox.exceptions.FileDownloadException;
 import io.github.abdulwahabo.filebox.exceptions.FileUploadException;
+import io.github.abdulwahabo.filebox.exceptions.UserCreateException;
 import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
 import io.github.abdulwahabo.filebox.model.File;
 import io.github.abdulwahabo.filebox.model.User;
@@ -11,11 +12,12 @@ import io.github.abdulwahabo.filebox.util.CacheHelper;
 import io.github.abdulwahabo.filebox.services.UserService;
 import io.github.abdulwahabo.filebox.util.Constants;
 
+import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-
 import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -23,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,11 +52,9 @@ public class HomeController {
         Optional<String> emailOpt = checkForUser(request.getCookies());
         if (emailOpt.isPresent()) {
             User user = userService.get(emailOpt.get());
-            model.addAttribute("user", user.getEmail());
-            model.addAttribute("files", user.getFiles());
+            model.addAttribute("user", user);
             return new ModelAndView("home", model);
         } else {
-            model.addAttribute("message", "You need to login first");
             return new ModelAndView("github_login", model);
         }
     }
@@ -67,9 +68,9 @@ public class HomeController {
         Optional<String> emailOpt = checkForUser(request.getCookies());
         if (emailOpt.isPresent()) {
             User user = userService.addFile(multipartFile, emailOpt.get());
-            model.addAttribute("user", user.getEmail());
-            model.addAttribute("files", user.getFiles());
-            return new ModelAndView("redirect:/", model);
+            model.addAttribute("user", user);
+            model.addAttribute("message", "File upload successful!");
+            return new ModelAndView("home", model);
         } else {
             model.addAttribute("message", "You need to login first");
             return new ModelAndView("github_login", model);
@@ -100,31 +101,30 @@ public class HomeController {
                              .body(resource);
     }
 
-    @GetMapping("/delete")
-    public ModelAndView delete(
-            HttpServletRequest request,
-            @RequestParam("storage_id") String storageID, ModelMap model) throws UserNotFoundException,
-            FileDeleteException {
+    @DeleteMapping("/delete")
+    public ModelAndView delete(HttpServletRequest request, @RequestParam("storage_id") String storageID, ModelMap model)
+            throws UserNotFoundException, UserCreateException, FileDeleteException {
 
         Optional<String> emailOpt = checkForUser(request.getCookies());
         String email = emailOpt.orElseThrow(() -> new FileDeleteException("User is not authenticated"));
-
         User user = userService.get(email);
-        Optional<File> fileOpt = user.getFiles()
-                                     .stream()
-                                     .filter(f -> f.getStorageID().equalsIgnoreCase(storageID))
-                                     .findFirst();
+        List<File> files = user.getFiles();
+        Optional<File> fileOpt = files.stream()
+                                      .filter(f -> f.getStorageID().equalsIgnoreCase(storageID))
+                                      .findFirst();
 
         File file = fileOpt.orElseThrow(() -> new FileDeleteException("No file matches the given storage ID"));
 
         boolean isDeleted = fileStorageService.delete(file.getStorageID());
         if (isDeleted) {
+            files.remove(file);
+            user.setFiles(files);
+            userService.save(user);
             model.addAttribute("message", "File deleted successfully!");
         } else {
             model.addAttribute("message", "Failed to delete file");
         }
-        model.addAttribute("user", user.getEmail());
-        model.addAttribute("files", user.getFiles());
+        model.addAttribute("user", user);
         return new ModelAndView("home", model);
     }
 
@@ -135,7 +135,7 @@ public class HomeController {
     }
 
     private Optional<String> checkForUser(Cookie[] cookies) {
-        for (int i = 0; i < cookies.length - 1; i++) {
+        for (int i = 0; i < cookies.length; i++) {
             Cookie cookie = cookies[i];
             if (cookie.getName().equalsIgnoreCase(Constants.COOKIE_NAME)) {
                 String token = cookie.getValue();
@@ -152,7 +152,7 @@ public class HomeController {
     }
 
     private void removeCookie(Cookie[] cookies, HttpServletResponse response) {
-        for (int i = 0; i < cookies.length - 1; i++) {
+        for (int i = 0; i < cookies.length; i++) {
             Cookie cookie = cookies[i];
             if (cookie.getName().equalsIgnoreCase(Constants.COOKIE_NAME)) {
                 String token = cookie.getValue();
@@ -164,7 +164,4 @@ public class HomeController {
             }
         }
     }
-
-    // TODO: write a global exception handler, return an error page.. log exception. ??
-    // TODO: Write 500 and 404 pages... map errors there.
 }

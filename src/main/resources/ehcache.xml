@@ -1,9 +1,29 @@
+<ehcache>
+    <defaultCache
+            maxEntriesLocalHeap="10000"
+            eternal="false"
+            timeToIdleSeconds="0"
+            overflowToDisk="false"
+            diskPersistent="false"
+            timeToLiveSeconds="360"
+            memoryStoreEvictionPolicy="LRU">
+    </defaultCache>
 
+    <cache name="oauth_state_cache"
+            eternal="false"
+            maxElementsInMemory="1000"
+            overflowToDisk="false"
+            diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="3600"
+            memoryStoreEvictionPolicy="LRU"/>
 
- <!--
-
-    Configure cache for tracking user logins here.
-
-    Look into a library for generating long random alphanumeric strings.
-
- -->
+    <cache name="session_cookie_cache"
+            eternal="false"
+            maxElementsInMemory="10000"
+            overflowToDisk="false"
+            diskPersistent="false"
+            timeToIdleSeconds="0"
+            timeToLiveSeconds="3600"
+            memoryStoreEvictionPolicy="LRU"/>
+</ehcache>

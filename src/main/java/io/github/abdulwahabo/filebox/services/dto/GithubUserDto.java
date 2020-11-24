@@ -2,6 +2,9 @@ package io.github.abdulwahabo.filebox.services.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+/**
+ *
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GithubUserDto {
 

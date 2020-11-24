@@ -12,11 +12,11 @@
 	<artifactId>filebox</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>filebox</name>
-	<description>Demo web service for file storage</description>
+	<description>Application code for a simple file storage service</description>
 
 	<properties>
 		<java.version>11</java.version>
-		<okhttp.mockwebserver>4.9.0</okhttp.mockwebserver>
+		<okhttp.version>4.9.0</okhttp.version>
 		<aws.sdk.version>2.15.26</aws.sdk.version>
 	</properties>
 
@@ -63,7 +63,14 @@
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>mockwebserver</artifactId>
-			<version>${okhttp.mockwebserver}</version>
+			<version>${okhttp.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>${okhttp.version}</version>
 			<scope>test</scope>
 		</dependency>
 

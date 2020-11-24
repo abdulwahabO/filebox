@@ -11,14 +11,19 @@ import io.github.abdulwahabo.filebox.services.FileStorageService;
 import io.github.abdulwahabo.filebox.services.UserService;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ *
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -41,6 +46,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean userExists(String email) throws AwsClientException {
+        return dynamoDBClient.userExists(email);
+    }
+
+    @Override
     public User save(User user) throws UserCreateException {
         try {
             dynamoDBClient.saveUser(user);
@@ -55,13 +65,14 @@ public class UserServiceImpl implements UserService {
         try {
             User user = get(email);
             List<File> files = user.getFiles();
-            LocalDateTime time = LocalDateTime.now();
+            ZonedDateTime time = ZonedDateTime.now(ZoneId.of("GMT+1"));
 
             File file = new File();
             file.setName(multipartFile.getOriginalFilename());
             file.setSize((double) multipartFile.getSize() / 1000);
             file.setUploadDate(time);
-            file.setUploadDateString(time.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+            file.setUploadDateString(time.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM,
+                    FormatStyle.LONG)));
 
             String id = fileStorageService.upload(multipartFile.getBytes(), user.getEmail());
             file.setStorageID(id);

@@ -1,36 +1,51 @@
 package io.github.abdulwahabo.filebox.util;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.support.SimpleValueWrapper;
 
 public class CacheHelperTest {
 
     private CacheManager cacheManager = mock(CacheManager.class);
-    private Cache cookieCache = mock(Cache.class);
-    private Cache oauthCache = mock(Cache.class);
+    private Cache cache = mock(Cache.class);
+    private String mockKey = "some_key";
+    private String mockValue = "some_value";
+    private Cache.ValueWrapper mockValueWrapper = new SimpleValueWrapper(mockValue);
+    private String cacheName = "the_cache";
 
-    @BeforeAll
+    @BeforeEach
     public void setup() {
-        // / Todo: use Constants to mock call to cacheManager
-        when(cacheManager.getCache(Constants.OAUTH_STATE_CACHE)).thenReturn(oauthCache);
-        when(cacheManager.getCache(Constants.COOKIE_CACHE)).thenReturn(cookieCache);
-        when(cookieCache.get(anyString())).thenReturn(null); // todo;
-        when(oauthCache.get(anyString())).thenReturn(null); // todo;
+        when(cacheManager.getCache(cacheName)).thenReturn(cache);
+        when(cache.get(mockKey)).thenReturn(mockValueWrapper);
     }
 
     @Test
     public void shouldReturnCachedValue() {
-
+        CacheHelper cacheHelper = new CacheHelper(cacheManager);
+        String value = (String) cacheHelper.get(cacheName, mockKey).get();
+        assertEquals(mockValue, value);
     }
 
     @Test
     public void shouldPutValueInCache() {
+        CacheHelper cacheHelper = new CacheHelper(cacheManager);
+        cacheHelper.put(cacheName, mockKey, mockValue);
+        verify(cache).put(mockKey, mockValue);
+    }
 
+    @Test
+    public void shouldRemoveCachedItem() {
+        CacheHelper cacheHelper = new CacheHelper(cacheManager);
+        cacheHelper.remove(cacheName, mockKey);
+        verify(cache).evictIfPresent(mockKey);
     }
 }

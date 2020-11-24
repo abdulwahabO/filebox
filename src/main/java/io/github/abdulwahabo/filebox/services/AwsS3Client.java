@@ -25,10 +25,11 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
+/**
+ *
+ */
 @Service
 public class AwsS3Client {
-
-    // Todo: Read AWS docs for how and where to keep Credentials.
 
     private Logger logger = LoggerFactory.getLogger(AwsS3Client.class);
 
@@ -121,5 +122,6 @@ public class AwsS3Client {
         s3Client = S3Client.builder()
                            .region(reg)
                            .build();
+
     }
 }
