@@ -3,7 +3,7 @@ package io.github.abdulwahabo.filebox.services.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- *
+ * Model for binding to Github API user JSON.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GithubUserDto {

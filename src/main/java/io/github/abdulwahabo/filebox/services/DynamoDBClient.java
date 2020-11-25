@@ -20,9 +20,10 @@ import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
+import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 
 /**
- *
+ * A wrapper around {@link DynamoDbEnhancedClient} client for working with {@link User}s.
  */
 @Service
 public class DynamoDBClient {
@@ -36,7 +37,11 @@ public class DynamoDBClient {
     private String region;
 
     /**
+     * Returns a user matching the given email if one exists.
      *
+     * @param email Email of the user to retrieve.
+     * @return The {@link User} associated with the given email.
+     * @throws AwsClientException If a user could not be retrieve for any reason.
      */
     public User getUser(String email) throws AwsClientException {
         try {
@@ -48,26 +53,26 @@ public class DynamoDBClient {
     }
 
     /**
+     * Returns a boolean indicating whether or not a  user exists that matches the given email.
      *
-     * Hacky way of checking.
-     *
-     * @param email
-     * @return
-     * @throws AwsClientException
+     * @throws AwsClientException if the check fails for any reason.
      */
-    public boolean userExists(String email) throws AwsClientException {
+    public boolean userExists(String email) {
         try {
             Key key = Key.builder().partitionValue(email).build();
             PageIterable<User> userPageIterable = userTable.query(QueryConditional.keyEqualTo(key));
             List<Page<User>> users = userPageIterable.stream().collect(Collectors.toList());
             return !users.isEmpty();
-        } catch (DynamoDbException e) {
-            throw new AwsClientException(e.getMessage(), e);
+        } catch (ResourceNotFoundException e) {
+            return false;
         }
     }
 
     /**
+     * Persists a user to the DynamoDB table. Any existing user with same email is overwritten.
      *
+     * @param user The user data to save.
+     * @throws AwsClientException If the DynamoDB client fails to save the user for any reason.
      */
     public void saveUser(User user) throws AwsClientException {
         try {

@@ -7,15 +7,12 @@ import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
 import io.github.abdulwahabo.filebox.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- *
- */
 public interface UserService {
 
     /**
+     * Returns the user matching the given email.
      *
-     * @param email
-     * @return
+     * @throws UserNotFoundException If no user was found.
      */
     User get(String email) throws UserNotFoundException;
 
@@ -23,22 +20,21 @@ public interface UserService {
      *
      * @param email
      * @return
-     * @throws AwsClientException
      */
-    boolean userExists(String email) throws AwsClientException;
+    boolean userExists(String email);
 
     /**
-     * Save user data to underlying datastore.
+     * Save the given user data to underlying datastore.
      *
-     * @param user
+     * @param user The user data
      */
     User save(User user) throws UserCreateException;
 
     /**
+     * Adds a file to the collection of the user matching the given email.
      *
-     * @param file
-     * @param email
+     * @param file The bytes of the file.
+     * @param email The user's email.
      */
     User addFile(MultipartFile file, String email) throws FileUploadException;
-
 }

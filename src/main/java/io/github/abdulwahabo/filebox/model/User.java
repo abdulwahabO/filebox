@@ -7,7 +7,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 /**
- *
+ * Model for a Filebox user. Each object also holds metadata for files uploaded by the user in a list of {@link File}s.
  */
 @DynamoDbBean
 public class User {

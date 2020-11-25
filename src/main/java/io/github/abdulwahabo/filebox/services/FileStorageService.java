@@ -5,7 +5,7 @@ import io.github.abdulwahabo.filebox.exceptions.FileDownloadException;
 import io.github.abdulwahabo.filebox.exceptions.FileUploadException;
 
 /**
- *
+ * Base interface for any services that manage files on a cloud storage platform.
  */
 public interface FileStorageService {
 

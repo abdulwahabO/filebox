@@ -8,7 +8,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 /**
- *
+ * Helper that wraps around {@link CacheManager} provides and clean interface for common caching operations.
  */
 @Service
 public class CacheHelper {
@@ -21,10 +21,11 @@ public class CacheHelper {
     }
 
     /**
+     * Puts an item into the given cache using the specified key.
      *
-     * @param cacheName
-     * @param key
-     * @param value
+     * @param cacheName The name of the cache to work with.
+     * @param key The key for the entry.
+     * @param value The item to cache.
      */
     public void put(String cacheName, String key, Object value) {
         Cache cache = cache(cacheName);
@@ -32,10 +33,11 @@ public class CacheHelper {
     }
 
     /**
+     * Returns an item from the specified cache, if present, using the given key.
      *
-     * @param cacheName
-     * @param key
-     * @return
+     * @param cacheName The cache to check.
+     * @param key The key to check for.
+     * @return An {@link Optional} containing the item if present. Otherwise an empty Optional.
      */
     public Optional<Object> get(String cacheName, String key) {
         Cache cache = cache(cacheName);
@@ -44,9 +46,10 @@ public class CacheHelper {
     }
 
     /**
+     * Removes the item, if present, matching the given key from the specified cache.
      *
-     * @param cacheName
-     * @param key
+     * @param cacheName The cache to remove the item from.
+     * @param key The key to check for.
      */
     public void remove(String cacheName, String key) {
         Cache cache = cache(cacheName);

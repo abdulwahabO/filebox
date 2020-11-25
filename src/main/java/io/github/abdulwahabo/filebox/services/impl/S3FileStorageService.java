@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- *
+ * Implementation of {@link FileStorageService} that uses AWS S3 for file storage.
  */
 @Service
 public class S3FileStorageService implements FileStorageService {

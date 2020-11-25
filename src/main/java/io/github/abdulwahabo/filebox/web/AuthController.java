@@ -55,7 +55,7 @@ public class AuthController {
     public ModelAndView githubCallback(
             @RequestParam Map<String, String> params,
             ModelMap modelMap,
-            HttpServletResponse response) throws AwsClientException, AuthenticationException, UserCreateException {
+            HttpServletResponse response) throws AuthenticationException, UserCreateException {
 
         String state = params.get("state");
         String code = params.get("code");

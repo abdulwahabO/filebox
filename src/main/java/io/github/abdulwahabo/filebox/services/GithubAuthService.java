@@ -18,6 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * Handles user authentication with Github using the OAuth2 protocol.
+ */
 @Service
 public class GithubAuthService {
 
@@ -44,7 +47,11 @@ public class GithubAuthService {
     }
 
     /**
+     * Exchanges the given authorization code for an access token.
      *
+     * @param code The auth code.
+     * @return Data model for the access token.
+     * @throws AuthenticationException if the exchange fails.
      */
     public GithubAccessTokenDto accesstoken(String code) throws AuthenticationException {
         String params = String.format("client_id=%s&client_secret=%s&code=%s", clientId, secret, code);
@@ -62,7 +69,7 @@ public class GithubAuthService {
     }
 
     /**
-     *
+     * Returns the Github URL to redirect a user in the first step of the OAuth2 flow.
      */
     public String redirectUrl() {
         host = startUrlWithoutSlash(host);
@@ -75,6 +82,7 @@ public class GithubAuthService {
     }
 
     /**
+     * Retrieves the data for the authenticated user associated with the given access token.
      *
      * @param accessToken
      * @return

@@ -10,7 +10,7 @@ import java.net.http.HttpResponse;
 import org.springframework.stereotype.Service;
 
 /**
- *
+ * HTTP client for making requests to Github's API.
  */
 @Service
 public class GithubClient {

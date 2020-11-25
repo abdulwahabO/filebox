@@ -26,7 +26,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 /**
- *
+ * HTTP client for workin with AWS S3. A wrapper around {@link S3Client} provided by the official AWS Java SDK.
+ * Files are uploaded to an already existing S3 bucket.
  */
 @Service
 public class AwsS3Client {
@@ -42,7 +43,12 @@ public class AwsS3Client {
     private S3Client s3Client;
 
     /**
+     * Uploads the the given file bytes to the S3 bucket using the given key.
      *
+     * @param key The key with which to associate the file.
+     * @param bytes The bytes of the file.
+     * @return true if the file was successfully uploaded to an S3 bucket. false otherwise.
+     * @throws FileUploadException If the file upload fails.
      */
     public boolean uploadFile(String key, byte[] bytes) throws FileUploadException {
         PutObjectRequest request = PutObjectRequest.builder()
@@ -67,7 +73,11 @@ public class AwsS3Client {
     }
 
     /**
+     * Downloads a file using the given key and returns it.
      *
+     * @param key Key of the file to download.
+     * @return The bytes of the file wrapped in an {@link Optional}. Empty if no file was downloaded.
+     * @throws FileDownloadException If an error is thrown before the download request returns.
      */
     public Optional<byte[]> downloadFile(String key) throws FileDownloadException {
         GetObjectRequest request = GetObjectRequest.builder()
@@ -92,7 +102,11 @@ public class AwsS3Client {
     }
 
     /**
+     * Deletes the file associated with the given key.
      *
+     * @param key The key of the file to delete.
+     * @return true if the file was successfully deleted. False otherwise.
+     * @throws FileDeleteException if an error occurs before a response is received for the delete request.
      */
     public boolean deleteFile(String key) throws FileDeleteException {
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()

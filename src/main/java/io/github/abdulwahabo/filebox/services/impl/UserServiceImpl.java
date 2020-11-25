@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- *
+ * Default implementation of {@link UserService} which uses DynamoDB to persist user data.
  */
 @Service
 public class UserServiceImpl implements UserService {
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean userExists(String email) throws AwsClientException {
+    public boolean userExists(String email)  {
         return dynamoDBClient.userExists(email);
     }
 
