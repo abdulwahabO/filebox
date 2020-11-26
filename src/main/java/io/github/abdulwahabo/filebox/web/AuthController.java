@@ -1,7 +1,6 @@
 package io.github.abdulwahabo.filebox.web;
 
 import io.github.abdulwahabo.filebox.exceptions.AuthenticationException;
-import io.github.abdulwahabo.filebox.exceptions.AwsClientException;
 import io.github.abdulwahabo.filebox.exceptions.UserCreateException;
 import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
 import io.github.abdulwahabo.filebox.model.User;
@@ -20,7 +19,6 @@ import java.util.Random;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.juli.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +27,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 public class AuthController {
@@ -68,15 +65,18 @@ public class AuthController {
 
         GithubAccessTokenDto accessToken = githubAuthService.accesstoken(code);
         GithubUserDto githubUserDto = githubAuthService.getGithubUser(accessToken.getToken());
-        boolean existingUser = userService.userExists(githubUserDto.getEmail());
 
-        if (!existingUser) {
+        try {
+            User user = userService.get(githubUserDto.getEmail());
+            logger.info("New sigin for user " + user.getEmail());
+        } catch (UserNotFoundException e) {
             User user = new User();
             user.setEmail(githubUserDto.getEmail());
             user.setName(githubUserDto.getName());
             userService.save(user);
+            logger.info("New signup. email: " + githubUserDto.getEmail());
         }
-        
+
         String token = randomToken();
         Cookie cookie = new Cookie(Constants.COOKIE_NAME, token);
         cookie.setMaxAge(604800); // 7 days

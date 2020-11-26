@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" class="has-background-light">
 
 <head>
     <meta charset="utf-8">
@@ -12,7 +12,7 @@
 
 <body>
 
-<nav class="navbar is-white" role="navigation" aria-label="main navigation">
+<nav class="navbar is-light" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
         <a class="navbar-item" href="#">
             <img src="../static/imgs/fb-logo.svg" th:src="@{imgs/fb-logo.svg}" width="115" height="32"/>
@@ -22,6 +22,7 @@
     <div id="navbarBasicExample" class="navbar-menu">
         <div class="navbar-start">
             <!-- Empty left-hand side of navbar -->
+           
         </div>
 
         <div class="navbar-end">
@@ -35,7 +36,7 @@
     </div>
 </nav>
 
-<div class="columns is-mobile is-centered">
+<div class="columns is-mobile">
     <div class="column is-half">
 
         <form method="POST" enctype="multipart/form-data" th:action="@{/upload}">
@@ -63,10 +64,8 @@
                 </div>
             </div>
         </form>
-
     </div>
 </div>
-
 
 <div class="columns is-centered" th:if="${message}">
     <div class="column is-half">
@@ -80,7 +79,7 @@
     </div>
 </div>
 
-<div class="columns is-centered" th:if="${user.files.size() > 0}">
+<div class="columns is-centered has-background-white" th:if="${user.files.size() > 0}">
     <div class="table is-fullwidth column is-10">
         <table>
             <thead>

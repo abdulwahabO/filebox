@@ -15,6 +15,7 @@ import io.github.abdulwahabo.filebox.services.DynamoDBClient;
 import io.github.abdulwahabo.filebox.services.FileStorageService;
 
 import io.github.abdulwahabo.filebox.services.UserService;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +37,7 @@ public class UserServiceImplTest {
     public void setup() throws Exception {
         mockUser.setName(mockName);
         mockUser.setEmail(mockEmail);
-        when(dynamoDBClient.getUser(mockEmail)).thenReturn(mockUser);
+        when(dynamoDBClient.getUser(mockEmail)).thenReturn(Optional.of(mockUser));
         doNothing().when(dynamoDBClient).saveUser(mockUser);
         when(file.getBytes()).thenReturn(mockFileBytes);
         when(file.getOriginalFilename()).thenReturn(mockFileName);

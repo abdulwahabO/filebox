@@ -69,7 +69,8 @@ public class HomeController {
         if (emailOpt.isPresent()) {
             User user = userService.addFile(multipartFile, emailOpt.get());
             model.addAttribute("user", user);
-            model.addAttribute("message", "File upload successful!");
+            String message = String.format("Success! %s has been added to your files", multipartFile.getOriginalFilename());
+            model.addAttribute("message", message);
             return new ModelAndView("home", model);
         } else {
             model.addAttribute("message", "You need to login first");
@@ -120,9 +121,9 @@ public class HomeController {
             files.remove(file);
             user.setFiles(files);
             userService.save(user);
-            model.addAttribute("message", "File deleted successfully!");
+            model.addAttribute("message", file.getName() + " has been deleted!");
         } else {
-            model.addAttribute("message", "Failed to delete file");
+            model.addAttribute("message", "Failed to delete file. Please Try again!");
         }
         model.addAttribute("user", user);
         return new ModelAndView("home", model);
@@ -135,16 +136,17 @@ public class HomeController {
     }
 
     private Optional<String> checkForUser(Cookie[] cookies) {
-        for (int i = 0; i < cookies.length; i++) {
-            Cookie cookie = cookies[i];
-            if (cookie.getName().equalsIgnoreCase(Constants.COOKIE_NAME)) {
-                String token = cookie.getValue();
-                Optional<Object> objectOptional = cacheHelper.get(Constants.COOKIE_CACHE, token);
-                if (objectOptional.isPresent()) {
-                    String email = (String) objectOptional.get();
-                    return Optional.of(email);
-                } else {
-                    return Optional.empty();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equalsIgnoreCase(Constants.COOKIE_NAME)) {
+                    String token = cookie.getValue();
+                    Optional<Object> objectOptional = cacheHelper.get(Constants.COOKIE_CACHE, token);
+                    if (objectOptional.isPresent()) {
+                        String email = (String) objectOptional.get();
+                        return Optional.of(email);
+                    } else {
+                        return Optional.empty();
+                    }
                 }
             }
         }
@@ -152,15 +154,16 @@ public class HomeController {
     }
 
     private void removeCookie(Cookie[] cookies, HttpServletResponse response) {
-        for (int i = 0; i < cookies.length; i++) {
-            Cookie cookie = cookies[i];
-            if (cookie.getName().equalsIgnoreCase(Constants.COOKIE_NAME)) {
-                String token = cookie.getValue();
-                cacheHelper.remove(Constants.COOKIE_CACHE, token);
-                Cookie expiredCookie = new Cookie(Constants.COOKIE_NAME, token);
-                cookie.setMaxAge(0);
-                response.addCookie(expiredCookie);
-                return;
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equalsIgnoreCase(Constants.COOKIE_NAME)) {
+                    String token = cookie.getValue();
+                    cacheHelper.remove(Constants.COOKIE_CACHE, token);
+                    Cookie expiredCookie = new Cookie(Constants.COOKIE_NAME, token);
+                    cookie.setMaxAge(0);
+                    response.addCookie(expiredCookie);
+                    return;
+                }
             }
         }
     }

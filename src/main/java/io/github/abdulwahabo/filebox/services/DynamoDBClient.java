@@ -4,6 +4,7 @@ import io.github.abdulwahabo.filebox.exceptions.AwsClientException;
 import io.github.abdulwahabo.filebox.model.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
@@ -43,21 +44,21 @@ public class DynamoDBClient {
      * @return The {@link User} associated with the given email.
      * @throws AwsClientException If a user could not be retrieve for any reason.
      */
-    public User getUser(String email) throws AwsClientException {
+    public Optional<User> getUser(String email) throws AwsClientException {
         try {
             Key key = Key.builder().partitionValue(email).build();
-            return userTable.getItem(key);
+            return Optional.ofNullable(userTable.getItem(key));
         } catch (DynamoDbException e) {
             throw new AwsClientException("Failed to get user with email:" + email, e);
         }
     }
 
-    /**
+  /*  /**
      * Returns a boolean indicating whether or not a  user exists that matches the given email.
      *
      * @throws AwsClientException if the check fails for any reason.
      */
-    public boolean userExists(String email) {
+   /* public boolean userExists(String email) {
         try {
             Key key = Key.builder().partitionValue(email).build();
             PageIterable<User> userPageIterable = userTable.query(QueryConditional.keyEqualTo(key));
@@ -66,7 +67,7 @@ public class DynamoDBClient {
         } catch (ResourceNotFoundException e) {
             return false;
         }
-    }
+    } */
 
     /**
      * Persists a user to the DynamoDB table. Any existing user with same email is overwritten.

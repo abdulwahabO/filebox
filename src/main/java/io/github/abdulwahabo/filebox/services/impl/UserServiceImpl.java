@@ -17,6 +17,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
 
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private Logger logger = LoggerFactory.getLogger(UserService.class);
     private FileStorageService fileStorageService;
     private DynamoDBClient dynamoDBClient;
 
@@ -39,21 +43,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public User get(String email) throws UserNotFoundException {
         try {
-            return dynamoDBClient.getUser(email);
+            Optional<User> userOptional = dynamoDBClient.getUser(email);
+            User user = userOptional.orElseThrow(() -> new UserNotFoundException("No user found for: " + email));
+            logger.info("Retrieved new user with email " + user.getEmail());
+            return user;
         } catch (AwsClientException e) {
             throw new UserNotFoundException("No user found with given email:" + email, e);
         }
     }
 
     @Override
-    public boolean userExists(String email)  {
-        return dynamoDBClient.userExists(email);
-    }
-
-    @Override
     public User save(User user) throws UserCreateException {
         try {
             dynamoDBClient.saveUser(user);
+            logger.info("Saved new user with email " + user.getEmail());
             return user;
         } catch (AwsClientException e) {
             throw new UserCreateException("Failed to save user with email: " + user.getEmail(), e);

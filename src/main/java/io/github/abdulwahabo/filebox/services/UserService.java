@@ -16,12 +16,12 @@ public interface UserService {
      */
     User get(String email) throws UserNotFoundException;
 
-    /**
+   /* /**
      *
      * @param email
      * @return
      */
-    boolean userExists(String email);
+   /* boolean userExists(String email); */
 
     /**
      * Save the given user data to underlying datastore.
