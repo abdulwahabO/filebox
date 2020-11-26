@@ -3,10 +3,26 @@ package io.github.abdulwahabo.filebox.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
+
+/**
+ * Model for a Filebox user. Each object also holds metadata for files uploaded by the user in a list of {@link File}s.
+ */
+@DynamoDbBean
 public class User {
 
     private String email;
-    private List<File> files;
+    private String name;
+    private List<File> files = new ArrayList<>();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public List<File> getFiles() {
         return new ArrayList<>(files);
@@ -16,6 +32,7 @@ public class User {
         this.files = files;
     }
 
+    @DynamoDbPartitionKey
     public String getEmail() {
         return email;
     }

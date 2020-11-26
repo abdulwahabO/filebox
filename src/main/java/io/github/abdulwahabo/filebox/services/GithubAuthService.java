@@ -1,24 +1,32 @@
 package io.github.abdulwahabo.filebox.services;
 
-import java.net.http.HttpClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.github.abdulwahabo.filebox.exceptions.AuthenticationException;
+import io.github.abdulwahabo.filebox.exceptions.UserNotFoundException;
+import io.github.abdulwahabo.filebox.services.dto.GithubAccessTokenDto;
+import io.github.abdulwahabo.filebox.services.dto.GithubUserDto;
+import io.github.abdulwahabo.filebox.util.CacheHelper;
+import io.github.abdulwahabo.filebox.util.Constants;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.http.HttpResponse;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * Handles user authentication with Github using the OAuth2 protocol.
+ */
 @Service
 public class GithubAuthService {
 
-    private final String GITHUB_BASE_URL = "https://github.com/login/oauth/authorize?";
-    private final String OAUTH_STATE_CACHE = "state_cache";
-
-    private CacheHelper cacheHelper;
-
-    @Autowired
-    public GithubAuthService(CacheHelper cacheHelper) {
-        this.cacheHelper = cacheHelper;
-    }
+    private final String GITHUB_AUTHORIZE_URL = "https://github.com/login/oauth/authorize?";
+    private final String GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token?";
+    private final String GITHUB_USER_API_URL = "https://api.github.com/user";
 
     @Value("${app.host}")
     private String host;
@@ -29,29 +37,79 @@ public class GithubAuthService {
     @Value("${github.client.secret}")
     private String secret;
 
-    /**
-     *
-     * @param code
-     * @return
-     */
-    public String accesstoken(String code){
+    private CacheHelper cacheHelper;
+    private GithubClient githubClient;
 
-        // todo: use Java 11 HttpClient...
-
-        return null;
+    @Autowired
+    public GithubAuthService(CacheHelper cacheHelper, GithubClient githubClient) {
+        this.cacheHelper = cacheHelper;
+        this.githubClient = githubClient;
     }
 
+    /**
+     * Exchanges the given authorization code for an access token.
+     *
+     * @param code The auth code.
+     * @return Data model for the access token.
+     * @throws AuthenticationException if the exchange fails.
+     */
+    public GithubAccessTokenDto accesstoken(String code) throws AuthenticationException {
+        String params = String.format("client_id=%s&client_secret=%s&code=%s", clientId, secret, code);
+        try {
+            HttpResponse<String> response = githubClient.getAccessToken(GITHUB_TOKEN_URL.concat(params));
+
+            if (!(response.statusCode() >= 200 && response.statusCode() <= 299)) {
+                throw new AuthenticationException("Failed to obtain Github access token");
+            }
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(response.body(), GithubAccessTokenDto.class);
+        } catch (IOException | URISyntaxException | InterruptedException e) {
+            throw new AuthenticationException("Failed to obtain Github access token", e);
+        }
+    }
+
+    /**
+     * Returns the Github URL to redirect a user in the first step of the OAuth2 flow.
+     */
     public String redirectUrl() {
-        String redirect = host.concat("/auth/callback");
-        String format = "client_id=%sredirect_uri=%sstate=%sallow_signup=false";
+        host = startUrlWithoutSlash(host);
+        String redirect = host.concat(Constants.OAUTH_CALLBACK_URL);
+        String format = "client_id=%s&redirect_uri=%s&state=%s&allow_signup=false";
         String state = random();
-        cacheHelper.put(OAUTH_STATE_CACHE, state, "valid_state");
+        cacheHelper.put(Constants.OAUTH_STATE_CACHE, state, "valid_state");
         String params = String.format(format, clientId, redirect, state);
-        return GITHUB_BASE_URL.concat(params);
+        return GITHUB_AUTHORIZE_URL.concat(params);
+    }
+
+    /**
+     * Retrieves the data for the authenticated user associated with the given access token.
+     *
+     * @param accessToken
+     * @return
+     * @throws UserNotFoundException
+     */
+    public GithubUserDto getGithubUser(String accessToken) throws AuthenticationException {
+        try {
+            HttpResponse<String> response = githubClient.getUser(accessToken, GITHUB_USER_API_URL);
+            if (!(response.statusCode() >= 200 && response.statusCode() <= 299)) {
+                throw new AuthenticationException("Failed to obtain Github access token");
+            }
+            ObjectMapper mapper = new ObjectMapper();
+            return mapper.readValue(response.body(), GithubUserDto.class);
+        } catch (IOException | URISyntaxException | InterruptedException e) {
+            throw new AuthenticationException("Failed to obtain Github access token", e);
+        }
     }
 
     private String random() {
         Random random = new Random();
         return String.valueOf(random.nextInt(54512));
+    }
+
+    private String startUrlWithoutSlash(String url) {
+        if (url.endsWith("/")) {
+            return url.substring(0, url.length() - 1);
+        }
+        return url;
     }
 }

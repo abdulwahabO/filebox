@@ -1,13 +1,37 @@
 package io.github.abdulwahabo.filebox.services;
 
+import io.github.abdulwahabo.filebox.exceptions.FileDeleteException;
+import io.github.abdulwahabo.filebox.exceptions.FileDownloadException;
 import io.github.abdulwahabo.filebox.exceptions.FileUploadException;
 
+/**
+ * Base interface for any services that manage files on a cloud storage platform.
+ */
 public interface FileStorageService {
 
-    // Returns an ID for the new file. Which is then mapped to it's location by File object.
-    String upload(byte[] file) throws FileUploadException;
+    /**
+     *
+     * @param file
+     * @param userEmail
+     * @return
+     * @throws FileUploadException
+     */
+    String upload(byte[] file, String userEmail) throws FileUploadException;
 
-    byte[] download(String id);
+    /**
+     *
+     *
+     * @param key
+     * @return
+     * @throws FileDownloadException
+     */
+    byte[] download(String key) throws FileDownloadException;
 
-    boolean delete(String id);
+    /**
+     *
+     * @param key
+     * @return
+     * @throws FileDeleteException
+     */
+    boolean delete(String key) throws FileDeleteException;
 }
