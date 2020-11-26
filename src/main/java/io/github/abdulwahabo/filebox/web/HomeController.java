@@ -102,7 +102,7 @@ public class HomeController {
                              .body(resource);
     }
 
-    @DeleteMapping("/delete")
+    @GetMapping("/delete")
     public ModelAndView delete(HttpServletRequest request, @RequestParam("storage_id") String storageID, ModelMap model)
             throws UserNotFoundException, UserCreateException, FileDeleteException {
 
