@@ -1,7 +1,7 @@
-![.github/workflows/build.yml](https://github.com/abdulwahabO/filebox/workflows/.github/workflows/build.yml/badge.svg?branch=master)
+![build](https://github.com/abdulwahabO/filebox/workflows/build/badge.svg)
 
 ## Filebox
 
 A simple file storage service.
 
-![](filebox-ui.png)
+![](filebox-demo.gif)
