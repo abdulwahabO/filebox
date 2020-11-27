@@ -16,6 +16,8 @@ A simple web-based file storage service built ontop of AWS infrastructure. As sh
 * AWS S3 - For secure storage of the actual files.
 * AWS Elastic Beanstalk - For conveniently deploying the application to an AWS production environment.
 
+On my portfolio site a I provide more details on architecture and AWS environment setup.
+
 ## Deploying Locally
 
 To deploy this project on your local machine you'll need a Github OAuth app and AWS credentials. Also, a Maven
@@ -38,5 +40,5 @@ To deploy this project on your local machine you'll need a Github OAuth app and 
 ```
 
 The application can be started using the Spring Boot Maven plugin and passing the name of the Maven profile i.e 
-`mvn spring-boot:run-Pfilebox-local`. Idescribe the AWS production setup on my portfolio site.
+`mvn spring-boot:run-Pfilebox-local`.
  
