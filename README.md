@@ -2,10 +2,9 @@
 
 ## Overview
 
-A simple web-based file storage service built ontop of AWS infrastructure. As shown in the demo below, users signup
- with their Github account and can upload files from their computer. Files can be deleted or downloaded. A more
-  thorough discussion of this project can be found on my portfolio sites at 
-  [abdulwahabo.github.io/filebox](https://abdulwahabo.github.io/filebox) 
+A simple web-based file storage service built ontop of AWS infrastructure. As shown in the demo below, users signin
+ with their Github account and can upload files from their computer A more thorough discussion of this project can be
+  found on my portfolio sites at [abdulwahabo.github.io/filebox](https://abdulwahabo.github.io/filebox) 
   
 ![](filebox-demo.gif)
 
