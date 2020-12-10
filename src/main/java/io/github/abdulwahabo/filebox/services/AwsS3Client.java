@@ -136,6 +136,5 @@ public class AwsS3Client {
         s3Client = S3Client.builder()
                            .region(reg)
                            .build();
-
     }
 }
